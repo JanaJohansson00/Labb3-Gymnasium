@@ -17,7 +17,9 @@ namespace Labb3_Gymnasium.Models
         }
 
         public virtual DbSet<Course> Courses { get; set; } = null!;
+        public virtual DbSet<Department> Departments { get; set; } = null!;
         public virtual DbSet<Employee> Employees { get; set; } = null!;
+        public virtual DbSet<EmployeeDepartmentInfo> EmployeeDepartmentInfos { get; set; } = null!;
         public virtual DbSet<Enrollment> Enrollments { get; set; } = null!;
         public virtual DbSet<Student> Students { get; set; } = null!;
 
@@ -25,7 +27,8 @@ namespace Labb3_Gymnasium.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=Gymnaisum;Integrated Security=True");
+
+                optionsBuilder.UseSqlServer("Data Source = (localdb)\\MSSQLLocalDB;initial Catalog=Gymnaisum;Integrated Security=True;");
             }
         }
 
@@ -44,8 +47,17 @@ namespace Labb3_Gymnasium.Models
                     .HasConstraintName("FK_TEACHER_ID");
             });
 
+            modelBuilder.Entity<Department>(entity =>
+            {
+                entity.Property(e => e.DepartmentName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<Employee>(entity =>
             {
+                entity.Property(e => e.EmploymentYear).HasColumnType("date");
+
                 entity.Property(e => e.FirstName)
                     .HasMaxLength(30)
                     .IsUnicode(false);
@@ -57,6 +69,25 @@ namespace Labb3_Gymnasium.Models
                 entity.Property(e => e.Role)
                     .HasMaxLength(30)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<EmployeeDepartmentInfo>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("EmployeeDepartmentInfo");
+
+                entity.HasOne(d => d.Department)
+                    .WithMany()
+                    .HasForeignKey(d => d.DepartmentId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_EmployeeDepartmentInfo_Department");
+
+                entity.HasOne(d => d.Employee)
+                    .WithMany()
+                    .HasForeignKey(d => d.EmployeeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_EmployeeDepartmentInfo_Employee");
             });
 
             modelBuilder.Entity<Enrollment>(entity =>

@@ -13,8 +13,8 @@ namespace Labb3_Gymnasium.Models
         public int EmployeeId { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
-        public string? Role { get; set; }
-
+        public string Role { get; set; }
+        public DateTime EmploymentYear { get; set; }
         public virtual ICollection<Course> Courses { get; set; }
     }
 }

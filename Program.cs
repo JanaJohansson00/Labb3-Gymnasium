@@ -14,25 +14,35 @@ namespace Labb3_Gymnasium
                     Console.WriteLine("Select a function:");
                     Console.WriteLine("1. Employees ");
                     Console.WriteLine("2. Students");
-                    Console.WriteLine("3. Exit");
-                    int choice;
-                    while (!int.TryParse(Console.ReadLine(), out choice))
-                    {
-                        Console.WriteLine("Invalid input. Please enter a valid number in the menu");
-                    }
+                    Console.WriteLine("3: Grades");
+                    Console.WriteLine("4: Departments");
+                    Console.WriteLine("5. Exit");
+
+                    string choice = Console.ReadLine();
+
                     Console.Clear();
                     switch (choice)
                     {
-                        case 1:
+                        case "1":
                             MethodsEmployee.Employees(dbContext);
                             break;
-                        case 2:
+                        case "2":
                             MethodsStudent.Students(dbContext);
                             break;
-                        case 3:
+                        case "3":
+                            MethodsGrades.Grades(dbContext);
+                            break;
+                        case "4":
+                            MethodsDepartment.Departments(dbContext);
+                            break;
+                        case "5":
                             Console.WriteLine("The program ends, welcome back!");
                             Environment.Exit(0);
                             break;
+                        default:
+                            Console.WriteLine("Wrong input, try again 1-5");
+                            break;
+
                     }
                 }
             }

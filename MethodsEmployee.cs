@@ -18,7 +18,8 @@ namespace Labb3_Gymnasium
             Console.WriteLine("1: View all employees");
             Console.WriteLine("2: View all teachers");
             Console.WriteLine("3: Add new employee");
-            Console.WriteLine("4: Return to menu");
+            Console.WriteLine("4: View active courses");
+            Console.WriteLine("5: Return to menu");
 
             string choice = Console.ReadLine();
 
@@ -36,6 +37,9 @@ namespace Labb3_Gymnasium
                     AddNewEmployee(dbContext);
                     break;
                 case "4":
+                    ActiveCourses(dbContext);
+                    break;
+                case "5":
                     return;
                 default:
                     Console.WriteLine("Invalid selection. Try again (1-4)");
@@ -46,58 +50,32 @@ namespace Labb3_Gymnasium
         }
         public static void ViewAllEmployees(GymnaisumContext dbContext)
         {
-            using (SqlConnection connection = new SqlConnection(dbContext.Database.GetDbConnection().ConnectionString))
+            // Retrieve and display information about all employees
+
+            var listOfEmployees = dbContext.Employees.ToList();
+            foreach (var employee in listOfEmployees)
             {
-                connection.Open();
-
-                string query = "SELECT * FROM Employees";
-
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        Console.WriteLine("All employees");
-                        while (reader.Read())
-                        {
-                            Console.WriteLine($"Employee Id {reader["EmployeeId"]}: {reader["FirstName"]} {reader["LastName"]} {reader["Role"]}");
-                        }
-                        Console.WriteLine("Press Enter to return");
-                        Console.ReadLine();
-                        Console.Clear();
-                        Employees(dbContext);
-                    }
-
-                }
+                Console.WriteLine($"Name: {employee.FirstName} {employee.LastName} | Role: {employee.Role} | Years worked: {DateTime.Now.Year - employee.EmploymentYear.Year}");
             }
+
+            Console.WriteLine("Press Enter to return");
+            Console.ReadLine();
+            Console.Clear();
+            Employees(dbContext);
+
         }
         public static void ViewAllTeachers(GymnaisumContext dbContext)
         {
-            using (SqlConnection connection = new SqlConnection(dbContext.Database.GetDbConnection().ConnectionString))
+            // Retrieve and display information about all teachers
+            var teachers = dbContext.Employees.Where(t => t.Role == "Teacher");
+            foreach (var teacher in teachers)
             {
-                connection.Open();
-
-                string query = "SELECT * FROM Employees WHERE Role = @Role";
-
-                Console.Clear();
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@Role", "Teacher");
-
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        Console.WriteLine("All the teachers:");
-                        while (reader.Read())
-                        {
-                            Console.WriteLine($"{reader["FirstName"]} {reader["LastName"]}");
-
-                        }
-                        Console.WriteLine("Press enter to return");
-                        Console.ReadLine();
-                        Console.Clear();
-                        Employees(dbContext);
-                    }
-                }
+                Console.WriteLine($"Name: {teacher.FirstName} {teacher.LastName} | Role: {teacher.Role} | Years worked: {DateTime.Now.Year - teacher.EmploymentYear.Year}");
             }
+            Console.WriteLine("Press Enter to return");
+            Console.ReadLine();
+            Console.Clear();
+            Employees(dbContext);
         }
         public static void AddNewEmployee(GymnaisumContext dbContext)
         {
@@ -125,25 +103,66 @@ namespace Labb3_Gymnasium
                     Console.WriteLine("Invalid input. Enter a role available from the list.");
                 }
             }
+
+            bool isValidSubject = false;
+            string teacherSubject = "";
+            if (employeeRole == "Teacher")
+            {
+                Console.WriteLine("Choose a subject\n" +
+                    "Math, English,Programming C#, Art, Civics, Sport, Databases SQL or Special Math Education");
+
+                while (!isValidSubject)
+                {
+                    teacherSubject = Console.ReadLine();
+
+                    string[] validSubjects = { "Math", "English", "Programming C#", "Art", "Civics", "Sport", "Databases SQL", "Special Math Education" };
+                    isValidSubject = validSubjects.Contains(teacherSubject);
+
+                    if (!isValidSubject)
+                    {
+                        Console.WriteLine("Invalid subject. Enter a subject available in the list.");
+                    }
+                }
+            }
             Console.Clear();
 
             var newEmployee = new Employee
             {
                 FirstName = firstName,
                 LastName = lastName,
-                Role = employeeRole
+                Role = employeeRole,
+                EmploymentYear = DateTime.Now
             };
 
             try
             {
+                // Add the new employee to the database and save changes
                 dbContext.Employees.Add(newEmployee);
                 dbContext.SaveChanges();
 
-                Console.WriteLine("New Employee added!");
+                Console.WriteLine($"New {employeeRole} added!");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error occurred: {ex.Message}");
+            }
+            Console.WriteLine("Press enter to return.");
+            Console.ReadLine();
+            Console.Clear();
+            Employees(dbContext);
+        }
+        public static void ActiveCourses(GymnaisumContext dbContext)
+        {
+            // Retrieve and display information about active courses
+            Console.WriteLine("Active Courses: ");
+
+            var listOfActiveCourses = dbContext.Courses
+                .Include(c => c.Teacher)
+                .ToList();
+
+            foreach (var course in listOfActiveCourses)
+            {
+                Console.WriteLine($"Course Id: {course.CourseId} Course Name: {course.CourseName} Teacher: {course.Teacher.FirstName} {course.Teacher.LastName}");
             }
             Console.WriteLine("Press enter to return.");
             Console.ReadLine();

@@ -14,39 +14,30 @@ namespace Labb3_Gymnasium
         {
             Console.WriteLine("1: View all students");
             Console.WriteLine("2: View students by class");
-            Console.WriteLine("3: View grades recent month");
-            Console.WriteLine("4. View grades statistics");
-            Console.WriteLine("5. Add new student");
-            Console.WriteLine("6: Return");
+            Console.WriteLine("3. Add new student");
+            Console.WriteLine("4: Return");
 
-            int choice;
-            while (!int.TryParse(Console.ReadLine(), out choice))
-            {
-                Console.WriteLine("Invalid selection. Try again (1-6).");
-            }
+            string choice = Console.ReadLine();
+
+            Console.Clear();
 
             Console.Clear();
             switch (choice)
             {
-                case 1:
+                case "1":
                     ViewAllStudents(dbContext);
                     break;
-                case 2:
+                case "2":
                     ViewStudentsByClass(dbContext);
                     break;
-                case 3:
-                    MethodsGrades.ViewGradesLatestMonth(dbContext);
+                case "3":
+                    AddNewStudent(dbContext);
                     break;
-                case 4:
-                    MethodsGrades.ViewCourseGradesStatistics(dbContext);
-                    break;
-                case 5:
-                    MethodsStudent.AddNewStudent(dbContext);
-                    break;
-                case 6:
+                case "4":
                     return;
+                    break;
                 default:
-                    Console.WriteLine("Wrong input, try again");
+                    Console.WriteLine("Wrong input, try again 1-4");
                     Students(dbContext);
                     Console.Clear();
                     break;
@@ -68,6 +59,7 @@ namespace Labb3_Gymnasium
             }
 
             Console.Clear();
+            // Query database based on the sorting choice.
             IQueryable<Student> students;
 
             switch (sortChoice)
@@ -92,7 +84,7 @@ namespace Labb3_Gymnasium
             Console.WriteLine("* All students *");
             foreach (var student in students)
             {
-                Console.WriteLine($"Student Id {student.StudentId}: {student.FirstName} {student.LastName}");
+                Console.WriteLine($"Student Id {student.StudentId}: {student.FirstName} {student.LastName}, Class: {student.Class}");
             }
             Console.WriteLine("Press Enter to return");
             Console.ReadLine();
